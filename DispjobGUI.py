@@ -20,10 +20,10 @@ class DispjobGUI(tk.Tk, object):
     def __init__(self):
         super(DispjobGUI, self).__init__()
         self.title("DispjobGUI")
-        #self.geometry("800x600")
-        self.frame_left_top = tk.Frame(width=400, height=200)
-        self.frame_right_top = tk.Frame(width=400, height=200)
-        self.frame_bottom = tk.Frame(width=800, height=400)
+        self.geometry("800x600")
+        self.frame_left_top = tk.Frame(self)
+        self.frame_right_top = tk.Frame(self)
+        self.frame_bottom = tk.Frame(self)
 
         # define left top
         self.var_entry = tk.StringVar()
@@ -52,13 +52,17 @@ class DispjobGUI(tk.Tk, object):
         self.gettree()
         self.tree.grid(row=0, column=0, sticky=tk.NSEW)
         self.vbar.grid(row=0, column=1, sticky=tk.NS)
+        self.frame_bottom.columnconfigure(0, weight=1)
+        self.frame_bottom.rowconfigure(0, weight=1)
 
         #define golbal:
         self.frame_left_top.grid(row=0, column=0, sticky=tk.EW)
         self.frame_right_top.grid(row=0, column=1,sticky=tk.EW)
-        self.frame_bottom.grid(row=1, column=0, columnspan=2)
+        self.frame_bottom.grid(row=1, column=0, columnspan=2, sticky=tk.NSEW)
 
-
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.rowconfigure(1, weight=1)
         #self.frame_left_top.grid_propagate(0)
         #self.frame_right_top.grid_propagate(0)
         #self.frame_bottom.grid_propagate(0)
