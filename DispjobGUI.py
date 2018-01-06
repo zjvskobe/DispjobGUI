@@ -3,6 +3,8 @@ import tkFileDialog
 import tkMessageBox
 import ttk
 import os
+from matplotlib.pyplot import figure, show
+from matplotlib.figure import Figure
 
 # read big file's last line:
 def readLastLineofFile(filename):
@@ -17,6 +19,17 @@ def readLastLineofFile(filename):
                 break
             off *= 2
     return last_line
+
+
+class MyFigure(Figure):
+    def __init__(self, *args, **kwargs):
+        """
+        custom kwarg figtitle is a figure title
+        """
+        figtitle = kwargs.pop('figtitle')
+        Figure.__init__(self, *args, **kwargs)
+        self.text(0.5, 0.95, figtitle, ha='center')
+
 
 class DispjobGUI(tk.Tk, object):
     def __init__(self):
@@ -90,7 +103,7 @@ class DispjobGUI(tk.Tk, object):
         self.tree = ttk.Treeview(self.frame_bottom, show="headings", height=18, columns=("a", "b", "c", "d"))
         self.vbar = ttk.Scrollbar(self.frame_bottom, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscrollcommand=self.vbar.set)
-
+        self.tree.bind("<Double-1>", self.ondouble_click)
         self.tree.column("a", width=50, anchor='center')
         self.tree.column("b", width=550, anchor='center')
         self.tree.column("c", width=100, anchor='center')
@@ -150,8 +163,21 @@ class DispjobGUI(tk.Tk, object):
         askmessage = "Submit by command \"xrmpi "+self.cores_var.get()+" "+self.exefile_path.get()+"\"?"
         if tkMessageBox.askyesno(message=askmessage):
             pass
+
+    def ondouble_click(self, event):
+        '''
+        item = self.tree.selection()[0]
+        print "you clicked on", self.tree.item(item, "values")
+        tl = tk.Toplevel(self)
+        tl_label = tk.Label(tl, text=self.tree.item(item, "values"))
+        tl_label.pack()
+        '''
+        fig = figure(FigureClass=MyFigure, figtitle='Title')
+        ax = fig.add_subplot(111)  # 111 shoud be positon
+        ax.plot([1, 2, 3])
+
+        show()
 if __name__ == '__main__':
     dispjob = DispjobGUI()
     dispjob.mainloop()
-    #dispjob.dispjob()
     pass
