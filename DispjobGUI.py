@@ -1,4 +1,6 @@
 import Tkinter as tk
+import tkFileDialog
+import tkMessageBox
 import ttk
 import os
 
@@ -28,15 +30,61 @@ class DispjobGUI(tk.Tk, object):
         self.frame_bottom = tk.Frame(self)
 
         # define left top
-        self.var_entry = tk.StringVar()
-        self.jobdir_title = tk.Label(self.frame_left_top, text = "JobDir:")
-        self.jobdir_entry = tk.Entry(self.frame_left_top, textvariable=self.var_entry)
-        self.jobdir_title.grid(row=0, column=0)
-        self.jobdir_entry.grid(row=0, column=1)
+        self.workdir_path = tk.StringVar()
+        #default is current dir:
+        self.workdir_path.set(os.getcwd())
+        self.workdir_title = tk.Label(self.frame_left_top, text ="WorkingDir:")
+        self.workdir_entry = tk.Entry(self.frame_left_top, textvariable=self.workdir_path, width=40)
+        self.askdir_button = tk.Button(self.frame_left_top, text='...', command=self.openjobdir)
+
+        self.exefile_path = tk.StringVar()
+        self.exefile_title = tk.Label(self.frame_left_top, text="Executable:")
+        self.exefile_entry = tk.Entry(self.frame_left_top, textvariable=self.exefile_path, width=40)
+        self.askexe_button = tk.Button(self.frame_left_top, text='...', command=self.openexefile)
+
+        self.cores_var = tk.StringVar()
+        self.cores_var.set(0)
+        self.cores_title = tk.Label(self.frame_left_top, text = "Cores:")
+        self.cores_entry = tk.Entry(self.frame_left_top, textvariable=self.cores_var, width=5)
+
+        self.workdir_title.grid(row=0, column=0, padx=5, sticky=tk.E)
+        self.workdir_entry.grid(row=0, column=1)
+        self.askdir_button.grid(row=0, column=2, padx=5)
+        self.exefile_title.grid(row=1, column=0, padx=5, sticky=tk.E)
+        self.exefile_entry.grid(row=1, column=1)
+        self.askexe_button.grid(row=1, column=2, padx=5)
+        self.cores_title.grid(row=2, column=0, padx=5, sticky=tk.E)
+        self.cores_entry.grid(row=2, column=1, sticky=tk.W)
 
         #define right top
-        self.update_button = tk.Button(self.frame_right_top, text="ClickUpdate", command=self.gettree)
-        self.update_button.grid(row=0, column=1)
+        self.update_button = tk.Button(self.frame_right_top, text="Update", width=10, command=self.updatetree)
+        self.update_button.grid(row=0, column=0)
+        self.submit_button = tk.Button(self.frame_right_top, text="Submit", width=10, command=self.submit)
+        self.submit_button.grid(row=0, column=2)
+        self.completed_var = tk.StringVar()
+        self.completed_var.set(0)
+        self.uncompled_var = tk.StringVar()
+        self.uncompled_var.set(0)
+        self.running_var = tk.StringVar()
+        self.running_var.set(0)
+        self.pending_var = tk.StringVar()
+        self.pending_var.set(0)
+        self.completed_title = tk.Label(self.frame_right_top, text="Completed:")
+        self.completed_label = tk.Label(self.frame_right_top, textvariable=self.completed_var)
+        self.uncompled_title = tk.Label(self.frame_right_top, text="UnCompleted:")
+        self.uncompled_label = tk.Label(self.frame_right_top, textvariable=self.uncompled_var)
+        self.running_title = tk.Label(self.frame_right_top, text="Running:")
+        self.running_label = tk.Label(self.frame_right_top, textvariable=self.running_var)
+        self.pending_title = tk.Label(self.frame_right_top, text="Pending:")
+        self.pending_label = tk.Label(self.frame_right_top, textvariable=self.pending_var)
+        self.completed_title.grid(row=1, column=0, sticky=tk.E)
+        self.completed_label.grid(row=1, column=1)
+        self.running_title.grid(row=1, column=2, sticky=tk.E)
+        self.running_label.grid(row=1, column=3)
+        self.uncompled_title.grid(row=2, column=0, sticky=tk.E)
+        self.uncompled_label.grid(row=2, column=1)
+        self.pending_title.grid(row=2, column=2, sticky=tk.E)
+        self.pending_label.grid(row=2, column=3)
 
         #define bottom:
         self.tree = ttk.Treeview(self.frame_bottom, show="headings", height=18, columns=("a", "b", "c", "d"))
@@ -65,13 +113,13 @@ class DispjobGUI(tk.Tk, object):
         self.columnconfigure(1, weight=1)
         self.rowconfigure(1, weight=1)
 
-    def dispjob(self):
-        workDir = 'JobDirs'
+    def dispjob(self, workDir):
+        #print workDir
         jobDirs = os.listdir(workDir)
-        currentPath = os.getcwd()
+        #print jobDirs
         jobInfo = []
         for dir in jobDirs:
-            current_dir = currentPath+"\\"+workDir+"\\"+dir
+            current_dir = workDir+"\\"+dir
             force_file = current_dir + "\\" + 'force_glb.out'
             last_line = readLastLineofFile(force_file)
             force_info = last_line.rstrip().split()
@@ -82,12 +130,26 @@ class DispjobGUI(tk.Tk, object):
             jobInfo.append((dir, complete_rate, 'R'))
         return jobInfo
 
-    def gettree(self):
-        # clear old content
-        map(self.tree.delete, self.tree.get_children(""))
-        self.jobInfos = self.dispjob()
-        for i, jobInfo in enumerate(self.jobInfos):
-            self.tree.insert("", i, values=(i, jobInfo[0], jobInfo[1], jobInfo[2]))
+    def updatetree(self):
+        askmessage = "Update jobs in "+self.workdir_path.get()+"?"
+        if tkMessageBox.askyesno(message=askmessage) :
+            # clear old content
+            map(self.tree.delete, self.tree.get_children(""))
+            self.jobInfos = self.dispjob(self.workdir_path.get())
+            self.running_var.set(len(self.jobInfos))
+            for i, jobInfo in enumerate(self.jobInfos):
+                self.tree.insert("", i, values=(i, jobInfo[0], jobInfo[1], jobInfo[2]))
+
+    def openjobdir(self):
+        self.workdir_path.set(tkFileDialog.askdirectory())
+
+    def openexefile(self):
+        self.exefile_path.set(tkFileDialog.askopenfilename())
+
+    def submit(self):
+        askmessage = "Submit by command \"xrmpi "+self.cores_var.get()+" "+self.exefile_path.get()+"\"?"
+        if tkMessageBox.askyesno(message=askmessage):
+            pass
 if __name__ == '__main__':
     dispjob = DispjobGUI()
     dispjob.mainloop()
