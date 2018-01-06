@@ -19,6 +19,8 @@ def readLastLineofFile(filename):
 class DispjobGUI(tk.Tk, object):
     def __init__(self):
         super(DispjobGUI, self).__init__()
+        self.jobInfos = []
+
         self.title("DispjobGUI")
         self.geometry("800x600")
         self.frame_left_top = tk.Frame(self)
@@ -33,7 +35,7 @@ class DispjobGUI(tk.Tk, object):
         self.jobdir_entry.grid(row=0, column=1)
 
         #define right top
-        self.update_button = tk.Button(self.frame_right_top, text="ClickUpdate")
+        self.update_button = tk.Button(self.frame_right_top, text="ClickUpdate", command=self.gettree)
         self.update_button.grid(row=0, column=1)
 
         #define bottom:
@@ -49,7 +51,6 @@ class DispjobGUI(tk.Tk, object):
         self.tree.heading("b", text="JobDir")
         self.tree.heading("c", text="Completed")
         self.tree.heading("d", text="JobStatus")
-        self.gettree()
         self.tree.grid(row=0, column=0, sticky=tk.NSEW)
         self.vbar.grid(row=0, column=1, sticky=tk.NS)
         self.frame_bottom.columnconfigure(0, weight=1)
@@ -63,9 +64,6 @@ class DispjobGUI(tk.Tk, object):
         self.columnconfigure(0, weight=1)
         self.columnconfigure(1, weight=1)
         self.rowconfigure(1, weight=1)
-        #self.frame_left_top.grid_propagate(0)
-        #self.frame_right_top.grid_propagate(0)
-        #self.frame_bottom.grid_propagate(0)
 
     def dispjob(self):
         workDir = 'JobDirs'
@@ -85,8 +83,10 @@ class DispjobGUI(tk.Tk, object):
         return jobInfo
 
     def gettree(self):
-        jobInfos = self.dispjob()
-        for i, jobInfo in enumerate(jobInfos):
+        # clear old content
+        map(self.tree.delete, self.tree.get_children(""))
+        self.jobInfos = self.dispjob()
+        for i, jobInfo in enumerate(self.jobInfos):
             self.tree.insert("", i, values=(i, jobInfo[0], jobInfo[1], jobInfo[2]))
 if __name__ == '__main__':
     dispjob = DispjobGUI()
