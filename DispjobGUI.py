@@ -3,8 +3,9 @@ import tkFileDialog
 import tkMessageBox
 import ttk
 import os
-from matplotlib.pyplot import figure, show
+from matplotlib.pyplot import figure, show, title
 from matplotlib.figure import Figure
+
 
 # read big file's last line:
 def readLastLineofFile(filename):
@@ -19,6 +20,24 @@ def readLastLineofFile(filename):
                 break
             off *= 2
     return last_line
+
+
+def readForceFile(filename):
+    iter=[]
+    CL = []
+    CD = []
+    with open(filename) as f:
+        f.readline()
+        while True:
+            line = f.readline()
+            if not line:
+                break
+            #print line
+            line_split = line.rstrip().split()
+            iter.append(int(line_split[0]))
+            CL.append(float(line_split[1]))
+            CD.append(float(line_split[2]))
+    return (iter, CL, CD)
 
 
 class MyFigure(Figure):
@@ -140,7 +159,7 @@ class DispjobGUI(tk.Tk, object):
             iter_step = int(force_info[0])
             complete_rate = '%.1f%%' % (iter_step*100.0/total_step)
             #print complete_rate
-            jobInfo.append((dir, complete_rate, 'R'))
+            jobInfo.append((current_dir, complete_rate, 'R'))
         return jobInfo
 
     def updatetree(self):
@@ -172,11 +191,18 @@ class DispjobGUI(tk.Tk, object):
         tl_label = tk.Label(tl, text=self.tree.item(item, "values"))
         tl_label.pack()
         '''
-        fig = figure(FigureClass=MyFigure, figtitle='Title')
-        ax = fig.add_subplot(111)  # 111 shoud be positon
-        ax.plot([1, 2, 3])
-
+        item = self.tree.selection()[0]
+        force_file = self.tree.item(item, "values")[1] + "/force_glb.out"
+        iter, CL, CD = readForceFile(force_file)
+        fig = figure(FigureClass=MyFigure, figtitle=force_file, figsize=(8, 4))
+        plot_CL = fig.add_subplot(121)  # 111 shoud be positon
+        plot_CL.plot(iter, CL)
+        title("CL")
+        plot_CD = fig.add_subplot(122)
+        title("CD")
+        plot_CD.plot(iter, CD)
         show()
+
 if __name__ == '__main__':
     dispjob = DispjobGUI()
     dispjob.mainloop()
