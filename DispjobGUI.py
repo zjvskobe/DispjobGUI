@@ -1,7 +1,7 @@
-import Tkinter as tk
-import tkFileDialog
-import tkMessageBox
-import ttk
+import tkinter as tk
+import tkinter.filedialog as tkFileDialog
+import tkinter.messagebox as tkMessageBox
+import tkinter.ttk as ttk
 import os
 from matplotlib.pyplot import figure, show, title
 from matplotlib.figure import Figure
@@ -9,8 +9,9 @@ from matplotlib.figure import Figure
 
 # read big file's last line:
 def readLastLineofFile(filename):
-    with open(filename) as f:
+    with open(filename, 'rb+') as f:
         first_line = f.readline()
+        # print(first_line)
         off = -50
         while True:
             f.seek(off, 2)
