@@ -17,7 +17,12 @@ includes = ["numpy.core._methods",
             "matplotlib.backends.qt_editor.formsubplottool",
             "matplotlib.legend_handler"]
 include_files = [r'C:\Users\zhangjian\Anaconda3\DLLs\tcl86t.dll',
-                 r'C:\Users\zhangjian\Anaconda3\DLLs\tk86t.dll']
+                 r'C:\Users\zhangjian\Anaconda3\DLLs\tk86t.dll',
+				 r'c:\Users\zhangjian\Anaconda3\Library\bin\mkl_intel_thread.dll',
+				 r'c:\Users\zhangjian\Anaconda3\Library\bin\mkl_core.dll',
+				 r'c:\Users\zhangjian\Anaconda3\Library\bin\mkl_def.dll',
+				 r'c:\Users\zhangjian\Anaconda3\Library\bin\libiomp5md.dll',
+				 r'c:\Users\zhangjian\Anaconda3\Library\plugins\platforms']
 
 executables = [Executable('DispjobGUI.py', base=base)]
 
